@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101827">
+<title>Brain Study App</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#101827;color:#f1f5f9;font-family:Arial,sans-serif;padding:18px}
+header{text-align:center;padding:15px}
+.logo{font-size:48px}
+h1{margin:5px;color:#7dd3fc}
+.card{background:#1e293b;padding:18px;border-radius:15px;margin:14px 0}
+label{display:block;margin:12px 0 6px;color:#cbd5e1}
+select,button{width:100%;padding:13px;border:0;border-radius:9px;font-size:16px;margin:5px 0}
+select{background:#334155;color:white}
+button{background:#0284c7;color:white;font-weight:bold}
+button:disabled{opacity:.5}
+.option{background:#334155;text-align:left;color:white}
+.option.selected{background:#0369a1}
+.small{color:#94a3b8;font-size:13px}
+#quiz,#result{display:none}
+#progress{height:8px;background:#475569;border-radius:8px;overflow:hidden}
+#bar{height:8px;background:#38bdf8;width:0}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">🧠</div>
+<h1>My Study App</h1>
+<p class="small">Class 10 NCERT • Study • Practise • Improve</p>
+</header>
+
+<div class="card" id="home">
+<h2>Welcome!</h2>
+<p>Choose your subject and start your quiz.</p>
+<label>Subject</label>
+<select id="subject">
+<option>Science</option><option>Maths</option>
+<option>SST</option><option>English Grammar</option>
+</select>
+<label>Difficulty</label>
+<select id="level">
+<option>Easy</option><option>Medium</option><option>Board Level</option>
+</select>
+<button onclick="startQuiz()">Start 20-question quiz</button>
+</div>
+
+<div class="card">
+<h3>🏆 Your Progress</h3>
+<p>Points: <b id="points">0</b></p>
+<p>Quizzes completed: <b id="completed">0</b></p>
+<p>Best score: <b id="best">0%</b></p>
+<button onclick="resetProgress()" style="background:#475569">Reset progress</button>
+</div>
+
+<div class="card" id="quiz">
+<div style="display:flex;justify-content:space-between">
+<b id="number">Question 1/20</b><b id="timer">05:00</b>
+</div>
+<p id="subjectName" class="small"></p>
+<div id="progress"><div id="bar"></div></div>
+<h3 id="question"></h3>
+<div id="options"></div>
+<p id="feedback"></p>
+<button id="next" onclick="nextQuestion()" disabled>Next question</button>
+</div>
+
+<div class="card" id="result">
+<h2>Quiz completed!</h2>
+<h1 id="score"></h1>
+<p id="reward"></p>
+<div id="review"></div>
+<button onclick="goHome()">Back to home</button>
+</div>
+
+<script>
+const bank={
+"Science":[
+["Which gas is released during photosynthesis?",["Oxygen","Nitrogen","Carbon dioxide","Hydrogen"],0,"Plants release oxygen during photosynthesis."],
+["What is the SI unit of electric current?",["Volt","Ampere","Ohm","Watt"],1,"Electric current is measured in amperes."],
+["Which acid is present in lemon?",["Acetic","Citric","Lactic","Formic"],1,"Lemons contain citric acid."],
+["Which part of a cell controls its activities?",["Nucleus","Ribosome","Vacuole","Cell wall"],0,"The nucleus contains genetic material and controls cell activities."],
+["What is the pH of a neutral solution?",["0","5","7","14"],2,"A neutral solution has pH 7 at room temperature."],
+["Which mirror is used as a rear-view mirror?",["Plane","Concave","Convex","None"],2,"A convex mirror gives a wider field of view."],
+["What is the chemical formula of washing soda?",["NaCl","Na₂CO₃·10H₂O","CaCO₃","NaOH"],1,"Washing soda is sodium carbonate decahydrate."],
+["Which blood cells help in clotting?",["RBC","WBC","Platelets","Plasma"],2,"Platelets help blood clot."],
+["Which lens is used to correct myopia?",["Convex","Concave","Bifocal","Cylindrical"],1,"A concave lens corrects short-sightedness."],
+["What is the functional unit of the kidney?",["Neuron","Nephron","Alveolus","Villus"],1,"The nephron filters blood and forms urine."],
+["Which metal is liquid at room temperature?",["Iron","Mercury","Copper","Aluminium"],1,"Mercury is liquid at ordinary room temperature."],
+["What is the main source of energy for Earth?",["Moon","Sun","Wind","Coal"],1,"The Sun is Earth's primary energy source."],
+["Which gas turns limewater milky?",["Oxygen","Hydrogen","Carbon dioxide","Nitrogen"],2,"Carbon dioxide forms insoluble calcium carbonate."],
+["What is the unit of resistance?",["Ampere","Volt","Ohm","Joule"],2,"Electrical resistance is measured in ohms."],
+["Which part of the plant absorbs water?",["Flower","Root hair","Stem","Leaf"],1,"Root hairs absorb water from soil."],
+["What is the process of breaking down food called?",["Respiration","Digestion","Excretion","Circulation"],1,"Digestion breaks complex food into simpler substances."],
+["Which non-metal is a good conductor of electricity?",["Sulphur","Phosphorus","Graphite","Oxygen"],2,"Graphite conducts electricity due to free electrons."],
+["What is the image formed by a plane mirror?",["Real","Inverted","Virtual and erect","Smaller"],2,"A plane mirror forms a virtual, erect image."],
+["Which hormone regulates blood sugar?",["Thyroxine","Insulin","Adrenaline","Growth hormone"],1,"Insulin helps regulate blood glucose."],
+["Which organisms fix atmospheric nitrogen?",["Some bacteria","Viruses","Fungi only","Protozoa"],0,"Certain bacteria, such as Rhizobium, fix nitrogen."]
+],
+"Maths":[
+["What is the value of sin 30°?",["1","1/2","√3/2","0"],1,"sin 30° = 1/2."],
+["The roots of x² - 5x + 6 = 0 are:",["1,6","2,3","-2,-3","0,6"],1,"Factorise: (x-2)(x-3)=0."],
+["What is the HCF of 12 and 18?",["2","3","6","9"],2,"The greatest common factor is 6."],
+["The sum of angles of a triangle is:",["90°","180°","270°","360°"],1,"The angle-sum property gives 180°."],
+["What is cos 60°?",["1/2","√3/2","1","0"],0,"cos 60° = 1/2."],
+["The distance formula is based on:",["Pythagoras theorem","Thales theorem","Euclid division","None"],0,"The distance formula follows from Pythagoras theorem."],
+["The common difference of 3, 7, 11, 15 is:",["2","3","4","5"],2,"Each term increases by 4."],
+["The discriminant of ax²+bx+c is:",["b²+4ac","b²-4ac","a²-4bc","4ac-b"],1,"The discriminant is b² - 4ac."],
+["A quadratic polynomial has degree:",["1","2","3","4"],1,"The highest power of the variable is 2."],
+["What is tan 45°?",["0","1","√3","1/√3"],1,"tan 45° = 1."],
+["The circumference of a circle is:",["πr²","2πr","πd²","r²"],1,"Circumference = 2πr."],
+["The area of a circle is:",["2πr","πr²","πd","4πr²"],1,"Area = πr²."],
+["If two triangles are similar, their corresponding angles are:",["Unequal","Equal","Right angles","Supplementary"],1,"Corresponding angles of similar triangles are equal."],
+["The value of sec 0° is:",["0","1","2","Undefined"],1,"sec 0° = 1/cos 0° = 1."],
+["The probability of an impossible event is:",["0","1","1/2","2"],0,"An impossible event has probability zero."],
+["The median of 2, 4, 6 is:",["2","4","6","12"],1,"The middle value is 4."],
+["The volume of a cube of side a is:",["a²","4a","a³","6a²"],2,"Volume of a cube = side³."],
+["The curved surface area of a cylinder is:",["πr²h","2πrh","2πr²","πrl"],1,"CSA of a cylinder = 2πrh."],
+["If x=2, then 3x+4 equals:",["6","8","10","12"],2,"3(2)+4 = 10."],
+["The zero of the polynomial x-7 is:",["0","7","-7","1"],1,"x-7=0 gives x=7."]
+],
+"SST":[
+["Who was the first President of the Indian National Congress?",["W.C. Bonnerjee","Mahatma Gandhi","Jawaharlal Nehru","Dadabhai Naoroji"],0,"W.C. Bonnerjee presided over its first session in 1885."],
+["When did the Non-Cooperation Movement begin?",["1919","1920","1930","1942"],1,"The movement began in 1920."],
+["Which soil is best suited for cotton?",["Alluvial","Black","Laterite","Arid"],1,"Black soil retains moisture and suits cotton."],
+["Which is a renewable resource?",["Coal","Petroleum","Solar energy","Natural gas"],2,"Solar energy is naturally replenished."],
+["What is the capital of India?",["Mumbai","New Delhi","Kolkata","Chennai"],1,"New Delhi is India's capital."],
+["Which institution makes laws at the national level?",["Parliament","Supreme Court","Election Commission","RBI"],0,"Parliament is the national legislature."],
+["Who wrote Hind Swaraj?",["B.R. Ambedkar","Mahatma Gandhi","Subhas Bose","Rabindranath Tagore"],1,"Gandhi wrote Hind Swaraj in 1909."],
+["Which sector includes farming?",["Primary","Secondary","Tertiary","IT"],0,"Agriculture belongs to the primary sector."],
+["What is the main function of the Reserve Bank of India?",["Make cars","Issue currency and regulate banks","Build roads","Conduct elections"],1,"The RBI is India's central bank."],
+["Which crop is mainly grown in the kharif season?",["Wheat","Mustard","Rice","Gram"],2,"Rice is a major kharif crop."],
+["What is federalism?",["One ruler","Division of power between levels of government","No government","Military rule"],1,"Federalism divides powers between different levels."],
+["Which movement began with the Dandi March?",["Quit India","Civil Disobedience","Khilafat","Swadeshi"],1,"The Dandi March launched the Civil Disobedience Movement."],
+["Which is a major source of freshwater?",["Oceans","Glaciers","Seas","Saline lakes"],1,"Glaciers store a large amount of Earth's freshwater."],
+["What does GDP measure?",["Population","Value of final goods and services","Land area","Exports only"],1,"GDP measures the value of final goods and services produced."],
+["Which is a basic feature of democracy?",["Hereditary rule","Free and fair elections","No opposition","One-party rule"],1,"Democracy requires free and fair elections."],
+["Which mineral is used to make aluminium?",["Bauxite","Mica","Limestone","Copper"],0,"Aluminium is extracted from bauxite."],
+["What is the main aim of the United Nations?",["Promote peace and cooperation","Control all countries","Run businesses","Collect taxes"],0,"The UN works for international peace and cooperation."],
+["Which industry is called a basic industry?",["Iron and steel","Tourism","Banking","Retail"],0,"Iron and steel supports many other industries."],
+["Which type of farming is practised on small plots for family needs?",["Commercial","Subsistence","Plantation","Mixed industry"],1,"Subsistence farming mainly meets family needs."],
+["Who led the Salt March in 1930?",["Mahatma Gandhi","Sardar Patel","Bose","Nehru"],0,"Mahatma Gandhi led the Dandi Salt March."]
+],
+"English Grammar":[
+["Choose the correct verb: She ___ to school daily.",["go","goes","going","gone"],1,"With 'she', use 'goes' in the simple present."],
+["Choose the correct article: He is ___ honest man.",["a","an","the","no article"],1,"Use 'an' before a vowel sound."],
+["Change to passive: Ram writes a letter.",["A letter is written by Ram.","A letter was written by Ram.","Ram is written a letter.","A letter wrote Ram."],0,"Simple present passive: is/am/are + past participle."],
+["Choose the correct preposition: The book is ___ the table.",["in","on","at","by"],1,"Use 'on' for something resting on a surface."],
+["Identify the adjective: It is a beautiful flower.",["It","is","beautiful","flower"],2,"Beautiful describes the noun flower."],
+["Choose the correct tense: I ___ my homework yesterday.",["complete","completed","completing","completes"],1,"Yesterday indicates simple past tense."],
+["Choose the correct pronoun: This is Riya. ___ is my friend.",["He","She","They","It"],1,"She is the correct pronoun for Riya."],
+["Choose the correct conjunction: Work hard ___ you will succeed.",["but","or","and","because"],2,"And joins two related ideas."],
+["Choose the correct spelling:",[" recieve","receive","receeve","receve"],1,"The correct spelling is receive."],
+["Identify the adverb: He runs quickly.",["He","runs","quickly","None"],2,"Quickly describes how he runs."],
+["Choose the correct modal: You ___ obey traffic rules.",["might","must","could","would"],1,"Must expresses strong obligation."],
+["Choose the correct form: They ___ playing cricket.",["is","am","are","was"],2,"They takes the plural helping verb are."],
+["Change to indirect speech: He said, 'I am tired.'",["He said that he was tired.","He says he tired.","He said I am tired.","He said that I tired."],0,"In reported speech, am changes to was."],
+["Choose the correct comparative: This road is ___ than that one.",["wide","wider","widest","more wide"],1,"The comparative form of wide is wider."],
+["Identify the noun: Honesty is the best policy.",["best","is","Honesty","the"],2,"Honesty is the name of a quality."],
+["Choose the correct question tag: She is kind, ___?",["is she","isn't she","does she","wasn't she"],1,"A positive statement takes a negative tag."],
+["Choose the correct word: There are ___ apples in the basket.",["much","many","little","anyone"],1,"Many is used with countable plural nouns."],
+["Choose the correct sentence:",["He don't know.","He doesn't know.","He not know.","He doesn't knows."],1,"Use doesn't + base verb with he/she/it."],
+["Choose the correct preposition: She is good ___ mathematics.",["in","on","at","by"],2,"The expression is 'good at' a subject or skill."],
+["Identify the type: What a lovely day!",["Interrogative","Exclamatory","Imperative","Assertive"],1,"It expresses a strong feeling."]
+]
+};
+
+let questions=[],index=0,correct=0,chosen=null,seconds=300,tick=null,answers=[];
+let points=Number(localStorage.points||0);
+function updateStats(){
+document.getElementById("points").textContent=points;
+document.getElementById("completed").textContent=localStorage.completed||0;
+document.getElementById("best").textContent=(localStorage.best||0)+"%";
+}
+updateStats();
+
+function startQuiz(){
+let subject=document.getElementById("subject").value;
+questions=[...bank[subject]].sort(()=>Math.random()-.5);
+index=0;correct=0;answers=[];
+let level=document.getElementById("level").value;
+seconds=level==="Easy"?60:level==="Medium"?180:300;
+document.getElementById("home").style.display="none";
+document.getElementById("result").style.display="none";
+document.getElementById("quiz").style.display="block";
+document.getElementById("subjectName").textContent=subject+" • "+level;
+showQuestion();clearInterval(tick);tick=setInterval(countdown,1000);
+}
+function countdown(){
+seconds--;
+document.getElementById("timer").textContent=formatTime(seconds);
+if(seconds<=0){clearInterval(tick);finishQuiz();}
+}
+function formatTime(s){return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function showQuestion(){
+chosen=null;
+let q=questions[index];
+document.getElementById("number").textContent="Question "+(index+1)+"/20";
+document.getElementById("timer").textContent=formatTime(seconds);
+document.getElementById("bar").style.width=(index/20*100)+"%";
+document.getElementById("question").textContent=q[0];
+document.getElementById("feedback").textContent="";
+document.getElementById("next").disabled=true;
+document.getElementById("next").textContent=index===19?"Finish quiz":"Next question";
+let area=document.getElementById("options");area.innerHTML="";
+q[1].forEach((option,i)=>{
+let b=document.createElement("button");b.className="option";
+b.textContent=String.fromCharCode(65+i)+". "+option;
+b.onclick=()=>choose(i,b);area.appendChild(b);
+});
+}
+function choose(i,button){
+if(chosen!==null)return;
+chosen=i;
+let q=questions[index];
+document.querySelectorAll(".option").forEach((b,n)=>{
+if(n===q[2])b.style.background="#166534";
+else if(n===i)b.style.background="#991b1b";
+});
+if(i===q[2])correct++;
+document.getElementById("feedback").textContent=(i===q[2]?"Correct! ":"Not quite. ")+q[3];
+document.getElementById("next").disabled=false;
+}
+function nextQuestion(){
+if(chosen===null)return;
+if(index===19){finishQuiz();return}
+index++;showQuestion();
+}
+function finishQuiz(){
+clearInterval(tick);
+let percent=Math.round(correct/20*100);
+let reward=percent>60?10:0;
+points+=reward;
+localStorage.points=points;
+localStorage.completed=Number(localStorage.completed||0)+1;
+localStorage.best=Math.max(Number(localStorage.best||0),percent);
+updateStats();
+document.getElementById("quiz").style.display="none";
+document.getElementById("result").style.display="block";
+document.getElementById("score").textContent=correct+"/20 ("+percent+"%)";
+document.getElementById("reward").textContent=reward?"+10 points earned!":"You need above 60% to earn 10 points. Keep practising!";
+document.getElementById("review").textContent="Keep learning. Read the explanations and try again!";
+}
+function goHome(){
+document.getElementById("result").style.display="none";
+document.getElementById("home").style.display="block";
+}
+function resetProgress(){
+if(confirm("Reset all points and progress?")){
+localStorage.removeItem("points");localStorage.removeItem("completed");localStorage.removeItem("best");
+points=0;updateStats();
+}
+}
+</script>
+</body>
+</html>
